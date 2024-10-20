@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { queryPromise, createConnection } from '@app/common/database/db/mysql';
@@ -32,7 +36,7 @@ export class UserService {
     const userUUID = uuidv4();
     const user = this.userRepository.create({
       id: userUUID,
-      ...userData
+      ...userData,
     });
     return await this.userRepository.save(user);
   }
@@ -43,24 +47,35 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    const existingUser = await this.userRepository.findOne({ where: { twitter_id: twitterId } });
+    const existingUser = await this.userRepository.findOne({
+      where: { twitter_id: twitterId },
+    });
     if (existingUser && existingUser.id !== userId) {
-      throw new BadRequestException('This Twitter ID is already connected to another account');
+      throw new BadRequestException(
+        'This Twitter ID is already connected to another account',
+      );
     }
 
     user.twitter_id = twitterId;
     return this.userRepository.save(user);
   }
 
-  async connectWallet(userId: string, walletAddress: string): Promise<UserEntity> {
+  async connectWallet(
+    userId: string,
+    walletAddress: string,
+  ): Promise<UserEntity> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const existingUser = await this.userRepository.findOne({ where: { wallet_address: walletAddress } });
+    const existingUser = await this.userRepository.findOne({
+      where: { wallet_address: walletAddress },
+    });
     if (existingUser && existingUser.id !== userId) {
-      throw new BadRequestException('This wallet address is already connected to another account');
+      throw new BadRequestException(
+        'This wallet address is already connected to another account',
+      );
     }
 
     user.wallet_address = walletAddress;
@@ -84,12 +99,28 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  public async updateUserProfile(id: string, updateData: Partial<UserEntity>): Promise<UserEntity> {
+  public async updateUserProfile(
+    id: string,
+    updateData: Partial<UserEntity>,
+  ): Promise<UserEntity> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
     Object.assign(user, updateData);
     return await this.userRepository.save(user);
+  }
+
+  async getUserConnections(userId: string): Promise<UserEntity[]> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['first_degree_connections'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user.first_degree_connections;
   }
 }

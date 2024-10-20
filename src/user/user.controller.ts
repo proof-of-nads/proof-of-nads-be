@@ -50,4 +50,14 @@ export class UserController {
   ) {
     return await this.userService.updateUserProfile(userId, updateData);
   }
+
+  @Get(':userId/connections')
+  async getUserConnections(@Param('userId') userId: string) {
+    const connections = await this.userService.getUserConnections(userId);
+    return connections.map((user) => ({
+      id: user.id,
+      username: user.username,
+      current_profile_picture: user.current_profile_picture,
+    }));
+  }
 }

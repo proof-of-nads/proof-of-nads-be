@@ -57,6 +57,19 @@
   ```
 - **Response**: 업데이트된 사용자 객체
 
+### 사용자 연결 목록 조회
+- **URL**: `/api/auth/:userId/connections`
+- **메소드**: `GET`
+- **응답**: 연결된 사용자 객체 배열
+  ```json
+  [
+    {
+      "id": "String",
+      "username": "String",
+      "current_profile_picture": "String"
+    }
+  ]
+
 ## 연결 관리
 
 ### 연결 요청
