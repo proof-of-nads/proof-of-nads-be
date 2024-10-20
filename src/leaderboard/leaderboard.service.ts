@@ -10,16 +10,21 @@ export class LeaderboardService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async getConnectionLeaderboard(): Promise<
-    { username: string; connectionCount: number }[]
-  > {
+  async getConnectionLeaderboard(
+    page: number = 1,
+    limit: number = 100,
+    sortOrder: 'ASC' | 'DESC' = 'DESC'
+  ): Promise<{ username: string; connectionCount: number }[]> {
+    const skip = (page - 1) * limit;
+
     const leaderboard = await this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.first_degree_connections', 'connections')
       .select(['user.username', 'COUNT(connections.id) as connectionCount'])
       .groupBy('user.id')
-      .orderBy('connectionCount', 'DESC')
-      .limit(100)
+      .orderBy('connectionCount', sortOrder)
+      .skip(skip)
+      .take(limit)
       .getRawMany();
 
     return leaderboard.map((entry) => ({

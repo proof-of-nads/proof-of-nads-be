@@ -1,73 +1,102 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+```markdown
+# API Endpoint
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 목차
+1. [사용자 관리](#사용자-관리)
+2. [연결 관리](#연결-관리)
+3. [리더보드](#리더보드)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 사용자 관리
 
-## Description
+### 사용자 생성
+- **URL**: `/api/auth/signup`
+- **메소드**: `POST`
+- **Request**:
+  ```json
+  {
+    "username": "String"
+  }
+  ```
+- **Response**: 생성된 사용자 객체
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### 사용자 삭제
+- **URL**: `/api/auth/:userId`
+- **메소드**: `DELETE`
+- **Response**: 삭제 확인 메시지
 
-## Installation
+### 사용자 프로필 업데이트
+- **URL**: `/api/auth/:userId/profile`
+- **메소드**: `PATCH`
+- **Request**: 업데이트할 사용자 필드
+  ```json
+  {
+    "username": "String",
+    "current_profile_picture": "String"
+  }
+  ```
+- **Response**: 업데이트된 사용자 객체
 
-```bash
-$ pnpm install
+### 트위터 계정 연결
+- **URL**: `/api/auth/:userId/connect-twitter`
+- **메소드**: `PATCH`
+- **Request**:
+  ```json
+  {
+    "twitterId": "String"
+  }
+  ```
+- **Response**: 업데이트된 사용자 객체
+
+### 지갑 주소 연결
+- **URL**: `/api/auth/:userId/connect-wallet`
+- **메소드**: `PATCH`
+- **Request**:
+  ```json
+  {
+    "walletAddress": "String"
+  }
+  ```
+- **Response**: 업데이트된 사용자 객체
+
+## 연결 관리
+
+### 연결 요청
+- **URL**: `/api/connection/request`
+- **메소드**: `POST`
+- **Request**:
+  ```json
+  {
+    "requester_id": "String",
+    "receiver_username": "String"
+  }
+  ```
+- **Response**: 
+  ```json
+  {
+    "success": "Boolean",
+    "message": "String",
+    "code": "500"
+  }
+  ```
+
+## 리더보드
+
+### 연결 리더보드 조회
+- **URL**: `/api/leaderboard/connections`
+- **메소드**: `GET`
+- **Params**:
+  - `page`: 페이지 번호 (기본값: 1)
+  - `limit`: 페이지당 결과 수 (기본값: 100)
+  - `sortOrder`: 정렬 순서 ('ASC' 또는 'DESC', 기본값: 'DESC')
+- **Response**: 연결 수에 따른 사용자 배열
+  ```json
+  [
+    {
+      "username": "String",
+      "connectionCount": "Number"
+    }
+  ]
+
+## 참고 사항
+- 현재 모든 엔드포인트는 인증을 필요로 하지 않습니다.
 ```
-
-## Running the app
-
-```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
