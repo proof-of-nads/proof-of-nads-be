@@ -64,6 +64,25 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  async connectDiscord(userId: string, discordId: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const existingUser = await this.userRepository.findOne({
+      where: { discord_id: discordId },
+    });
+    if (existingUser && existingUser.id !== userId) {
+      throw new BadRequestException(
+        'This Discord ID is already connected to another account',
+      );
+    }
+
+    user.discord_id = discordId;
+    return this.userRepository.save(user);
+  }
+
   async connectWallet(
     userId: string,
     walletAddress: string,

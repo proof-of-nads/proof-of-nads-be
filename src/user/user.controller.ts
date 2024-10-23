@@ -48,6 +48,14 @@ export class UserController {
     return this.userService.connectTwitter(userId, twitterId);
   }
 
+  @Patch(':userId/connect-discord')
+  async connectDiscord(
+    @Param('userId') userId: string,
+    @Body('discordId') discordId: string,
+  ) {
+    return this.userService.connectDiscord(userId, discordId);
+  }
+
   @Patch(':userId/connect-wallet')
   async connectWallet(
     @Param('userId') userId: string,
