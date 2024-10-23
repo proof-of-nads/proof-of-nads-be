@@ -48,6 +48,17 @@
   }
   ```
 - **Response**: 업데이트된 사용자 객체
+- 
+### 디스코드 계정 연결
+- **URL**: `/api/auth/:userId/connect-discord`
+- **메소드**: `PATCH`
+- **Request**:
+  ```json
+  {
+    "discordId": "String"
+  }
+  ```
+- **Response**: 업데이트된 사용자 객체
 
 ### 지갑 주소 연결
 - **URL**: `/api/auth/:userId/connect-wallet`
@@ -81,8 +92,9 @@
 - **Request**:
   ```json
   {
-    "requester_id": "String",
-    "receiver_username": "String"
+    "requester_username": "String",
+    "receiver_username": "String",
+    "proofImage": "String"
   }
   ```
 - **Response**: 
@@ -90,7 +102,11 @@
   {
     "success": "Boolean",
     "message": "String",
-    "code": "500"
+    "code": "200",
+    "data" {
+      "successful": "Connections object",
+      "failed": "failedObject",
+    }
   }
   ```
 
