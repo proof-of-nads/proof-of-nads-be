@@ -7,7 +7,7 @@ const config = configure();
 
 export const typeORMConfig: TypeOrmModuleOptions = {
     type: 'mysql',
-    host: config.HOST || '127.0.0.1',
+    host: config.HOST || 'db',
     port: config.DBPORT || 3306,
     username: config.DB_USERNAME || 'user',
     password: config.DB_PASSWORD || 'password',
