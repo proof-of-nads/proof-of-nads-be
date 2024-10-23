@@ -16,6 +16,31 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Post('signup')
+  async createUser(
+    @Body()
+    userData: {
+      username: string;
+      current_profile_picture?: string;
+      twitter_id?: string;
+      wallet_address?: string;
+    },
+  ): Promise<UserEntity> {
+    if (!userData.username) {
+      throw new UnauthorizedException('Username is required');
+    }
+    return await this.userService.createUser({
+      username: userData.username,
+      current_profile_picture: userData.current_profile_picture || '',
+      twitter_id: userData.twitter_id,
+      wallet_address: userData.wallet_address,
+      profile_picture_history: [],
+      badge_list: [],
+      qr_code: '',
+      first_degree_connections: [], // 연결은 빈 배열로 초기화
+    });
+  }
+
   @Patch(':userId/connect-twitter')
   async connectTwitter(
     @Param('userId') userId: string,
@@ -30,11 +55,6 @@ export class UserController {
     @Body('walletAddress') walletAddress: string,
   ) {
     return this.userService.connectWallet(userId, walletAddress);
-  }
-
-  @Post('signup')
-  async createUser(@Body() userData: Partial<UserEntity>) {
-    return await this.userService.createUser(userData);
   }
 
   @Delete(':userId')

@@ -13,7 +13,10 @@
 - **Request**:
   ```json
   {
-    "username": "String"
+    "username": "testuser",
+    "current_profile_picture": "https://example.com/profile.jpg",
+    "twitter_id": "testuser123",
+    "wallet_address": "0x123..."
   }
   ```
 - **Response**: 생성된 사용자 객체

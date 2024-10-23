@@ -13,7 +13,7 @@ export default () => {
     HOST: process.env.HOST,
     DBPORT: parseInt(process.env.PORT, 10) || 3306,
     DB_DATABASE: process.env.DATABASE,
-    DB_USER: process.env.USERNAME,
+    DB_USERNAME: process.env.USERNAME,
     DB_PASSWORD: process.env.PASSWORD,
   };
   return output;

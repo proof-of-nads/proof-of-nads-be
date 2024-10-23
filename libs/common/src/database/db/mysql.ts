@@ -18,7 +18,7 @@ async function createConnection(): Promise<mysql.Connection> {
     const connection = mysql.createConnection({
         host: config.HOST || '127.0.0.1',
         port: config.DBPORT || 3306,// Default Mysql port // 3306
-        user: config.DB_USER || 'user',
+        user: config.DB_USERNAME || 'user',
         password: config.DB_PASSWORD || 'password',
         database: config.DB_DATABASE || 'my_database',
         enableKeepAlive: true

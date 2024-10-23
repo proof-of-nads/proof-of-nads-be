@@ -20,6 +20,9 @@ export class UserEntity {
   @Column({ nullable: true })
   twitter_id: string;
 
+  @Column({ nullable: true })
+  discord_id: string;
+
   @Column({ unique: true })
   wallet_address: string;
 
