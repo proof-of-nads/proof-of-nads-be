@@ -1,5 +1,17 @@
 version: '3.8'
 services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7777:7777"
+    environment:
+      - NODE_ENV=dev
+    depends_on:
+      - db
+    restart: always
+
   db:
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
