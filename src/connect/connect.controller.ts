@@ -17,14 +17,14 @@ export class ConnectController {
   @Post('request')
   @UseInterceptors(FileInterceptor('proofImage'))
   async requestConnections(
-    @Body('requester_id') requesterId: string,
+    @Body('requesterUsername') requesterUsername: string,
     @Body('receiver_usernames') receiverUsernames: string[],
-    @UploadedFile() proofImage: Express.Multer.File,
+    @Body('proofImage') proofImage: string,
   ): Promise<ConnectionResponse> {
     return this.connectService.requestConnections(
-      requesterId,
+    requesterUsername,
       receiverUsernames,
-      proofImage.buffer,
+      proofImage
     );
   }
 }

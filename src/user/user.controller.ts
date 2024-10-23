@@ -22,7 +22,7 @@ export class UserController {
     userData: {
       username: string;
       current_profile_picture?: string;
-      twitter_id?: string;
+      discord_id?: string;
       wallet_address?: string;
     },
   ): Promise<UserEntity> {
@@ -32,7 +32,7 @@ export class UserController {
     return await this.userService.createUser({
       username: userData.username,
       current_profile_picture: userData.current_profile_picture || '',
-      twitter_id: userData.twitter_id,
+      twitter_id: userData.discord_id,
       wallet_address: userData.wallet_address,
       profile_picture_history: [],
       badge_list: [],

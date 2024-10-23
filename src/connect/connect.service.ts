@@ -7,8 +7,6 @@ import { GithubService } from 'src/github/github.service';
 import { ConnectionResponse } from './types/connection.types';
 
 
-
-
 @Injectable()
 export class ConnectService {
   constructor(
@@ -20,12 +18,12 @@ export class ConnectService {
   ) {}
 
   async requestConnections(
-    requesterId: string,
+    requesterUsername: string,
     receiverUsernames: string[],
-    proofImage: Buffer,
+    proofImage: string,
   ): Promise<ConnectionResponse> {
     const requester = await this.userRepository.findOne({
-      where: { id: requesterId },
+      where: { username: requesterUsername },
       relations: ['connections', 'connections.connected_user'],
     });
 
@@ -35,11 +33,11 @@ export class ConnectService {
 
     try {
       // Github에 이미지 업로드
-      const filename = `proof-${Date.now()}.jpg`;
-      const imageUrl = await this.githubService.uploadImage(
-        proofImage,
-        filename,
-      );
+    //   const filename = `proof-${Date.now()}.jpg`;
+    //   const imageUrl = await this.githubService.uploadImage(
+    //     proofImage,
+    //     filename,
+    //   );
 
       const successfulConnections = [];
       const failedConnections = [];
@@ -81,20 +79,13 @@ export class ConnectService {
           continue;
         }
 
-        // 양방향 연결 생성
         const connection1 = this.connectionRepository.create({
           user: requester,
           connected_user: receiver,
-          proof_image: imageUrl,
+          proof_image: proofImage,
         });
 
-        const connection2 = this.connectionRepository.create({
-          user: receiver,
-          connected_user: requester,
-          proof_image: imageUrl,
-        });
-
-        await this.connectionRepository.save([connection1, connection2]);
+        await this.connectionRepository.save([connection1]);
         successfulConnections.push(username);
       }
 
