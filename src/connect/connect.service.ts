@@ -1,73 +1,118 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Connection } from 'mysql2';
-import { ConfigService } from '@nestjs/config';
 import { UserEntity } from '@app/common/database/entities/user.entity';
+import { ConnectionEntity } from '@app/common/database/entities/connection.entity';
+import { GithubService } from 'src/github/github.service';
+import { ConnectionResponse } from './types/connection.types';
+
+
+
 
 @Injectable()
 export class ConnectService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-    private readonly configService: ConfigService,
+    @InjectRepository(ConnectionEntity)
+    private connectionRepository: Repository<ConnectionEntity>,
+    private readonly githubService: GithubService,
   ) {}
 
-  async requestConnection(
+  async requestConnections(
     requesterId: string,
-    receiverUsername: string,
-  ): Promise<{ success: boolean; message: string; code: number }> {
+    receiverUsernames: string[],
+    proofImage: Buffer,
+  ): Promise<ConnectionResponse> {
     const requester = await this.userRepository.findOne({
       where: { id: requesterId },
-      relations: ['first_degree_connections'] // 이 부분이 필요합니다
+      relations: ['connections', 'connections.connected_user'],
     });
+
     if (!requester) {
-      return { success: false, message: 'Requester not found', code: 404 };  // 이 부분도 수정
+      return { success: false, message: 'Requester not found', code: 404 };
     }
 
-    const receiver = await this.userRepository.findOne({
-      where: { username: receiverUsername },
-      relations: ['first_degree_connections'] // 이 부분도 필요합니다
-    });
-    if (!receiver) {
-      return { success: false, message: 'Receiver not found', code: 404 };
-    }
+    try {
+      // Github에 이미지 업로드
+      const filename = `proof-${Date.now()}.jpg`;
+      const imageUrl = await this.githubService.uploadImage(
+        proofImage,
+        filename,
+      );
 
-    if (requester.id === receiver.id) {
+      const successfulConnections = [];
+      const failedConnections = [];
+
+      // 각 수신자에 대해 연결 생성
+      for (const username of receiverUsernames) {
+        const receiver = await this.userRepository.findOne({
+          where: { username },
+          relations: ['connections', 'connections.connected_user'],
+        });
+
+        if (!receiver) {
+          failedConnections.push({ username, reason: 'User not found' });
+          continue;
+        }
+
+        // 자기 자신과의 연결 방지
+        if (requester.id === receiver.id) {
+          failedConnections.push({
+            username,
+            reason: 'Cannot connect to yourself',
+          });
+          continue;
+        }
+
+        // 이미 연결되어 있는지 확인
+        const existingConnection = await this.connectionRepository.findOne({
+          where: [
+            { user: { id: requester.id }, connected_user: { id: receiver.id } },
+            { user: { id: receiver.id }, connected_user: { id: requester.id } },
+          ],
+        });
+
+        if (existingConnection) {
+          failedConnections.push({
+            username,
+            reason: 'Connection already exists',
+          });
+          continue;
+        }
+
+        // 양방향 연결 생성
+        const connection1 = this.connectionRepository.create({
+          user: requester,
+          connected_user: receiver,
+          proof_image: imageUrl,
+        });
+
+        const connection2 = this.connectionRepository.create({
+          user: receiver,
+          connected_user: requester,
+          proof_image: imageUrl,
+        });
+
+        await this.connectionRepository.save([connection1, connection2]);
+        successfulConnections.push(username);
+      }
+
+      return {
+        success: true,
+        message: 'Connections processed',
+        code: 200,
+        data: {
+          successful: successfulConnections,
+          failed: failedConnections,
+        },
+      };
+    } catch (error) {
       return {
         success: false,
-        message: 'Cannot connect to yourself',
-        code: 400,
+        message: `Failed to process connections: ${error.message}`,
+        code: 500,
       };
     }
-
-    // 배열이 없을 경우를 대비한 null check 추가
-    if (!requester.first_degree_connections) {
-      requester.first_degree_connections = [];
-    }
-
-    // Check if connection already exists
-    if (
-      requester.first_degree_connections.some((conn) => conn.id === receiver.id)
-    ) {
-      return {
-        success: false,
-        message: 'Connection already exists',
-        code: 409,
-      };
-    }
-
-    // Add connection
-    requester.first_degree_connections.push(receiver);
-    receiver.first_degree_connections.push(requester);
-
-    await this.userRepository.save(requester);
-    await this.userRepository.save(receiver);
-
-    return {
-      success: true,
-      message: 'Connection request successful',
-      code: 200,
-    };
   }
 }

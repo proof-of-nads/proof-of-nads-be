@@ -5,8 +5,13 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "7777:7777"
+      - '7777:7777'
     environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USERNAME=user
+      - DB_PASSWORD=password
+      - DB_DATABASE=my_database
       - NODE_ENV=dev
     depends_on:
       - db
@@ -22,7 +27,7 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: password
     ports:
-      - "3306:3306"
+      - '3306:3306'
     volumes:
       - mysql_data:/var/lib/mysql
 

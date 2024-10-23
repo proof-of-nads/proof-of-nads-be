@@ -7,6 +7,8 @@ import { typeORMConfig } from '@app/common/database/db/typeorm.config';
 import { UserModule } from './user/user.module';
 import { ConnectModule } from './connect/connect.module';
 import { LeaderboardModule } from './leaderboard/leaderboard.module';
+import { GithubService } from './github/github.service';
+import { GithubModule } from './github/github.module';
 
 @Module({
   imports: [
@@ -15,8 +17,9 @@ import { LeaderboardModule } from './leaderboard/leaderboard.module';
     UserModule,
     ConnectModule,
     LeaderboardModule,
+    GithubModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, GithubService],
 })
 export class AppModule {}

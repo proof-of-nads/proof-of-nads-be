@@ -2,12 +2,12 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToMany,
-  JoinTable,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { ConnectionEntity } from './connection.entity';
 
 @Entity({ name: 'UserInfo' })
 export class UserEntity {
@@ -35,19 +35,9 @@ export class UserEntity {
   @Column('simple-array')
   badge_list: string[];
 
-  @ManyToMany(() => UserEntity)
-  @JoinTable({
-    name: 'user_connections',
-    joinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'connected_user_id',
-      referencedColumnName: 'id',
-    },
-  })
-  first_degree_connections: UserEntity[];
+  // ManyToMany 관계를 OneToMany로 변경
+  @OneToMany(() => ConnectionEntity, (connection) => connection.user)
+  connections: ConnectionEntity[];
 
   @Column({ nullable: true })
   qr_code: string;

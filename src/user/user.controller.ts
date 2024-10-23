@@ -37,7 +37,6 @@ export class UserController {
       profile_picture_history: [],
       badge_list: [],
       qr_code: '',
-      first_degree_connections: [], // 연결은 빈 배열로 초기화
     });
   }
 
@@ -73,11 +72,6 @@ export class UserController {
 
   @Get(':userId/connections')
   async getUserConnections(@Param('userId') userId: string) {
-    const connections = await this.userService.getUserConnections(userId);
-    return connections.map((user) => ({
-      id: user.id,
-      username: user.username,
-      current_profile_picture: user.current_profile_picture,
-    }));
+    return await this.userService.getUserConnections(userId);
   }
 }

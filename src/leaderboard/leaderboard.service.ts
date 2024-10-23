@@ -2,25 +2,26 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from '@app/common/database/entities/user.entity';
+import { ConnectionEntity } from '@app/common/database/entities/connection.entity';
 
 @Injectable()
 export class LeaderboardService {
   constructor(
-    @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>,
+    @InjectRepository(ConnectionEntity)
+    private connectionRepository: Repository<ConnectionEntity>,
   ) {}
 
   async getConnectionLeaderboard(
     page: number = 1,
     limit: number = 100,
-    sortOrder: 'ASC' | 'DESC' = 'DESC'
+    sortOrder: 'ASC' | 'DESC' = 'DESC',
   ): Promise<{ username: string; connectionCount: number }[]> {
     const skip = (page - 1) * limit;
 
-    const leaderboard = await this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.first_degree_connections', 'connections')
-      .select(['user.username', 'COUNT(connections.id) as connectionCount'])
+    const leaderboard = await this.connectionRepository
+      .createQueryBuilder('connection')
+      .leftJoinAndSelect('connection.user', 'user')
+      .select(['user.username', 'COUNT(connection.id) as connectionCount'])
       .groupBy('user.id')
       .orderBy('connectionCount', sortOrder)
       .skip(skip)

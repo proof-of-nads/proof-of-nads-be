@@ -2,6 +2,7 @@ import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import configure from "../../configure/configure";
 import * as path from 'path';
 import { UserEntity } from "../entities/user.entity";
+import { ConnectionEntity } from "../entities/connection.entity";
 
 const config = configure();
 
@@ -12,7 +13,7 @@ export const typeORMConfig: TypeOrmModuleOptions = {
     username: config.DB_USERNAME || 'user',
     password: config.DB_PASSWORD || 'password',
     database: config.DB_DATABASE || 'my_database',
-    entities: [path.join(__dirname, '../entities/**/*.entity{.ts,.js}'), UserEntity],
+    entities: [path.join(__dirname, '../entities/**/*.entity{.ts,.js}'), UserEntity, ConnectionEntity],
     // synchronize: process.env.NODE_ENV !== 'production',
     synchronize: true,
     logging: true,
