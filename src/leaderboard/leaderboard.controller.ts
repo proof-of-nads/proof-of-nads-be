@@ -4,6 +4,7 @@ import { LeaderboardService } from './leaderboard.service';
 interface LeaderboardResponse {
   username: string;
   connectionCount: number;
+  profilePicture: string;
 }
 
 @Controller('api/leaderboard')

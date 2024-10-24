@@ -15,28 +15,29 @@ export class LeaderboardService {
     page: number = 1,
     limit: number = 100,
     sortOrder: 'ASC' | 'DESC' = 'DESC',
-  ): Promise<{ username: string; connectionCount: number }[]> {
+  ): Promise<
+    { username: string; connectionCount: number; profilePicture: string }[]
+  > {
     const skip = (page - 1) * limit;
 
     const leaderboard = await this.connectionRepository
       .createQueryBuilder('connection')
-      .leftJoinAndSelect('connection.user', 'user')
+      .leftJoin('connection.user', 'user') // leftJoinAndSelect 대신 leftJoin 사용
       .select([
-        'user.username',
-        'user.current_profile_picture',
-        ,
+        'user.username as username',
+        'user.current_profile_picture as profilePicture',
         'COUNT(connection.id) as connectionCount',
       ])
-      .groupBy('user.id')
+      .groupBy('user.id, user.username, user.current_profile_picture') // groupBy 수정
       .orderBy('connectionCount', sortOrder)
       .skip(skip)
       .take(limit)
       .getRawMany();
 
     return leaderboard.map((entry) => ({
-      username: entry.user_username,
+      username: entry.username,
       connectionCount: parseInt(entry.connectionCount, 10),
-      profilePicture: entry.user_current_profile_picture
+      profilePicture: entry.profilePicture,
     }));
   }
 }
