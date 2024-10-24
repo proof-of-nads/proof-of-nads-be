@@ -21,7 +21,12 @@ export class LeaderboardService {
     const leaderboard = await this.connectionRepository
       .createQueryBuilder('connection')
       .leftJoinAndSelect('connection.user', 'user')
-      .select(['user.username', 'COUNT(connection.id) as connectionCount'])
+      .select([
+        'user.username',
+        'user.current_profile_picture',
+        ,
+        'COUNT(connection.id) as connectionCount',
+      ])
       .groupBy('user.id')
       .orderBy('connectionCount', sortOrder)
       .skip(skip)
@@ -31,6 +36,7 @@ export class LeaderboardService {
     return leaderboard.map((entry) => ({
       username: entry.user_username,
       connectionCount: parseInt(entry.connectionCount, 10),
+      profilePicture: entry.user_current_profile_picture
     }));
   }
 }
