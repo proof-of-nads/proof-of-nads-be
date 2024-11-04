@@ -10,8 +10,8 @@ dotenv.config({
 
 export default () => {
   const output = {
-    HOST: process.env.HOST,
-    DBPORT: parseInt(process.env.PORT, 10) || 3306,
+    DB_HOST: process.env.DB_HOST,
+    DB_PORT: parseInt(process.env.DB_PORT, 10) || 3306,
     DB_DATABASE: process.env.DATABASE,
     DB_USERNAME: process.env.USERNAME,
     DB_PASSWORD: process.env.PASSWORD,
