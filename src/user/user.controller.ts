@@ -8,9 +8,11 @@ import {
   UnauthorizedException,
   Patch,
   Param,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserEntity } from '@app/common/database/entities/user.entity';
 import { UserService } from './user.service';
+import { IProfileUserData } from './types/user.types';
 
 @Controller('api/auth')
 export class UserController {
@@ -78,8 +80,17 @@ export class UserController {
     return await this.userService.updateUserProfile(userId, updateData);
   }
 
-  @Get(':userId/connections')
-  async getUserConnections(@Param('userId') userId: string) {
-    return await this.userService.getUserConnections(userId);
+  // @Get(':userId/connections')
+  // async getUserConnections(@Param('userId') userId: string) {
+  //   return await this.userService.getUserConnections(userId);
+  // }
+
+  @Get(':username')
+  async getProfile(@Param('username') username: string): Promise<IProfileUserData> {
+    const profile = await this.userService.getProfileData(username);
+    if (!profile) {
+      throw new NotFoundException('Profile not found');
+    }
+    return profile;
   }
 }

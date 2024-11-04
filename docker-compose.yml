@@ -9,10 +9,12 @@ services:
     environment:
       - DB_HOST=db
       - DB_PORT=3306
-      - DB_USERNAME=user
-      - DB_PASSWORD=password
-      - DB_DATABASE=my_database
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
       - NODE_ENV=dev
+    env_file:
+      - ./envs/dev.env  # envs 폴더 안의 dev.env 파일 경로 지정
     depends_on:
       - db
     restart: always
@@ -21,15 +23,23 @@ services:
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    env_file:
+      - ./envs/dev.env
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: my_database
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
-      - '3306:3306'
+      - '3306:3306'  # localhost에서만 접근 가능하도록 수정
     volumes:
       - mysql_data:/var/lib/mysql
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    cap_add:
+      - SYS_NICE
 
 volumes:
   mysql_data:
+    driver: local
