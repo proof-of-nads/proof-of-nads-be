@@ -11,7 +11,17 @@ import { ConfigService } from '@nestjs/config';
 import { UserEntity } from '@app/common/database/entities/user.entity';
 import { ConnectionEntity } from '@app/common/database/entities/connection.entity';
 import { v4 as uuidv4 } from 'uuid';
-import { IProfileUserData, IUser, IUserConnections, IProfileEntry, IConnection, Address, IProofEntry, IEdge, IProfileUserDataWithEdges} from './types/user.types';
+import {
+  IProfileUserData,
+  IUser,
+  IUserConnections,
+  IProfileEntry,
+  IConnection,
+  Address,
+  IProofEntry,
+  IEdge,
+  IProfileUserDataWithEdges,
+} from './types/user.types';
 
 @Injectable()
 export class UserService {
@@ -265,6 +275,33 @@ export class UserService {
     return secondDegreeConnections;
   }
 
+  async updateProfilePicture(
+    id: string,
+    file: Express.Multer.File,
+  ): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // 서버의 도메인 설정 (환경변수에서 가져오기)
+    const domain = this.configService.get<string>('DOMAIN');
+    const fileUrl = `${domain}/uploads/profile-pictures/${file.filename}`;
+
+    // 현재 프로필 사진을 히스토리에 추가
+    if (user.current_profile_picture) {
+      user.profile_picture_history = [
+        ...user.profile_picture_history,
+        user.current_profile_picture,
+      ];
+    }
+
+    // 새로운 프로필 사진 URL 설정
+    user.current_profile_picture = fileUrl;
+
+    return await this.userRepository.save(user);
+  }
+
   async getEdgeData(username: string): Promise<IEdge[]> {
     const user = await this.userRepository.findOne({
       where: { username },
@@ -278,49 +315,49 @@ export class UserService {
     const edges: IEdge[] = [];
     const processedConnections = new Set<string>();
 
-      // Helper function to create unique edge key
-  const createEdgeKey = (source: string, target: string): string => {
-    const [first, second] = [source, target].sort();
-    return `edge_${first}_${second}`;
-  };
+    // Helper function to create unique edge key
+    const createEdgeKey = (source: string, target: string): string => {
+      const [first, second] = [source, target].sort();
+      return `edge_${first}_${second}`;
+    };
 
-  // Helper function to add edge
-  const addEdge = (source: string, target: string): void => {
-    const edgeKey = createEdgeKey(source, target);
-    if (!processedConnections.has(edgeKey)) {
-      edges.push({
-        key: edgeKey,
-        source: source,
-        target: target,
-      });
-      processedConnections.add(edgeKey);
+    // Helper function to add edge
+    const addEdge = (source: string, target: string): void => {
+      const edgeKey = createEdgeKey(source, target);
+      if (!processedConnections.has(edgeKey)) {
+        edges.push({
+          key: edgeKey,
+          source: source,
+          target: target,
+        });
+        processedConnections.add(edgeKey);
+      }
+    };
+
+    // 첫번째 연결 관계의 edges
+    for (const connection of user.connections) {
+      addEdge(user.username, connection.connected_user.username);
     }
-  };
 
-  // 첫번째 연결 관계의 edges
-  for (const connection of user.connections) {
-    addEdge(user.username, connection.connected_user.username);
-  }
+    // 두번째 연결 관계의 edges
+    for (const connection of user.connections) {
+      const secondaryUser = await this.userRepository.findOne({
+        where: { id: connection.connected_user.id },
+        relations: ['connections', 'connections.connected_user'],
+      });
 
-  // 두번째 연결 관계의 edges
-  for (const connection of user.connections) {
-    const secondaryUser = await this.userRepository.findOne({
-      where: { id: connection.connected_user.id },
-      relations: ['connections', 'connections.connected_user'],
-    });
-
-    if (secondaryUser && secondaryUser.connections) {
-      for (const secondConnection of secondaryUser.connections) {
-        if (secondConnection.connected_user.username !== user.username) {
-          addEdge(
-            secondaryUser.username,
-            secondConnection.connected_user.username,
-          );
+      if (secondaryUser && secondaryUser.connections) {
+        for (const secondConnection of secondaryUser.connections) {
+          if (secondConnection.connected_user.username !== user.username) {
+            addEdge(
+              secondaryUser.username,
+              secondConnection.connected_user.username,
+            );
+          }
         }
       }
     }
-  }
 
-  return edges;
+    return edges;
   }
 }

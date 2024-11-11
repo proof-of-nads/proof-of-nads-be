@@ -5,11 +5,17 @@ import {
   Body,
   Delete,
   Res,
+  Put,
+  UploadedFile,
+  UseInterceptors,
   UnauthorizedException,
   Patch,
   Param,
   NotFoundException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { UserEntity } from '@app/common/database/entities/user.entity';
 import { UserService } from './user.service';
 import { IProfileUserData, IEdge } from './types/user.types';
@@ -78,6 +84,35 @@ export class UserController {
     @Body() updateData: Partial<UserEntity>,
   ) {
     return await this.userService.updateUserProfile(userId, updateData);
+  }
+
+  @Put(':id/profile-picture')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/profile-pictures', // OVH 서버의 저장 경로
+        filename: (req, file, callback) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          callback(null, `${uniqueSuffix}${extname(file.originalname)}`);
+        },
+      }),
+      fileFilter: (req, file, callback) => {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+          return callback(new Error('Only image files are allowed!'), false);
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB limit
+      },
+    }),
+  )
+  async updateProfilePicture(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.userService.updateProfilePicture(id, file);
   }
 
   // @Get(':userId/connections')
