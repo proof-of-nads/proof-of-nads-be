@@ -276,10 +276,10 @@ export class UserService {
   }
 
   async updateProfilePicture(
-    id: string,
+    username: string,
     file: Express.Multer.File,
   ): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { username } });
     if (!user) {
       throw new NotFoundException('User not found');
     }

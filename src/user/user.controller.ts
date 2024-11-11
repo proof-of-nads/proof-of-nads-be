@@ -86,7 +86,7 @@ export class UserController {
     return await this.userService.updateUserProfile(userId, updateData);
   }
 
-  @Put(':id/profile-picture')
+  @Put(':username/profile-picture')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -109,10 +109,10 @@ export class UserController {
     }),
   )
   async updateProfilePicture(
-    @Param('id') id: string,
+    @Param('username') username: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.userService.updateProfilePicture(id, file);
+    return this.userService.updateProfilePicture(username, file);
   }
 
   // @Get(':userId/connections')
