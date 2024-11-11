@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { UserEntity } from '@app/common/database/entities/user.entity';
 import { UserService } from './user.service';
-import { IProfileUserData } from './types/user.types';
+import { IProfileUserData, IEdge } from './types/user.types';
 
 @Controller('api/auth')
 export class UserController {
@@ -86,11 +86,18 @@ export class UserController {
   // }
 
   @Get(':username')
-  async getProfile(@Param('username') username: string): Promise<IProfileUserData> {
+  async getProfile(
+    @Param('username') username: string,
+  ): Promise<IProfileUserData> {
     const profile = await this.userService.getProfileData(username);
     if (!profile) {
       throw new NotFoundException('Profile not found');
     }
     return profile;
+  }
+
+  @Get(':username/edges')
+  async getEdges(@Param('username') username: string): Promise<IEdge[]> {
+    return await this.userService.getEdgeData(username);
   }
 }

@@ -49,6 +49,12 @@ export interface IProofEntry {
   data: Date;
 }
 
+export interface IEdge {
+  key: string;
+  source: string;
+  target: string;
+}
+
 export interface IProfileUserData {
   user: IUser;
   userConnections: IUserConnections;
@@ -56,4 +62,8 @@ export interface IProfileUserData {
   guestBook: Array<IGuestBook>;
   profileHistory: Array<IProfileEntry>;
   proofHistory: Array<IProofEntry>;
+}
+
+export interface IProfileUserDataWithEdges extends IProfileUserData {
+  edges: IEdge[];
 }
