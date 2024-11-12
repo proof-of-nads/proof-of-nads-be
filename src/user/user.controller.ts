@@ -24,6 +24,11 @@ import { IProfileUserData, IEdge } from './types/user.types';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Get('mock-data')
+  async getMockData() {
+    return await this.userService.getMockData();
+  }
+
   @Post('signup')
   async createUser(
     @Body()
@@ -136,8 +141,5 @@ export class UserController {
     return await this.userService.getEdgeData(username);
   }
 
-  @Get('mock')
-  async getMockData() {
-    return await this.userService.getMockData();
-  }
+
 }
