@@ -46,7 +46,7 @@ export interface IProfileEntry {
 
 export interface IProofEntry {
   imgSrc: string;
-  data: Date;
+  date: Date;
 }
 
 export interface IEdge {
