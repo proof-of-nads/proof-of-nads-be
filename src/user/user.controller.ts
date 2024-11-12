@@ -138,6 +138,6 @@ export class UserController {
 
   @Get('mock')
   async getMockData() {
-    
+    return await this.userService.getMockData();
   }
 }
