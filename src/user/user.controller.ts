@@ -135,4 +135,9 @@ export class UserController {
   async getEdges(@Param('username') username: string): Promise<IEdge[]> {
     return await this.userService.getEdgeData(username);
   }
+
+  @Get('mock')
+  async getMockData() {
+    
+  }
 }

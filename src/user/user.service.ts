@@ -360,4 +360,30 @@ export class UserService {
 
     return edges;
   }
+
+  async getMockData() {
+    // 4. Transform profile history
+    const profileHistory = [
+      "http://51.89.7.79:7777/uploads/profile-pictures/1731325922779-928469520.png",
+      "https://github.com/ByungHeonLEE/test2/blob/main/profile/Shuwski.jpg?raw=true",
+      "https://github.com/ByungHeonLEE/test2/blob/main/profile/baram7.png?raw=true",
+      "https://github.com/ByungHeonLEE/test2/blob/main/profile/whitesocks.jpg?raw=true",
+      "https://github.com/ByungHeonLEE/test2/blob/main/profile/BenjaNad.jpg?raw=true",
+      "https://github.com/ByungHeonLEE/test2/blob/main/profile/PaulC.jpg?raw=true",
+    ]
+
+    // 5. Transform proof history (현재 엔티티에는 없으므로 빈 배열 반환)
+    const proofHistory = [
+      "https://github.com/ByungHeonLEE/test2/blob/main/proof/8.png?raw=true",
+      "https://github.com/ByungHeonLEE/test2/blob/main/proof/7.png?raw=true",
+      "https://github.com/ByungHeonLEE/test2/blob/main/proof/6.png?raw=true",
+      "https://github.com/ByungHeonLEE/test2/blob/main/proof/5.png?raw=true",
+      "https://github.com/ByungHeonLEE/test2/blob/main/proof/4.png?raw=true",
+      "https://github.com/ByungHeonLEE/test2/blob/main/proof/3.png?raw=true",
+    ];
+    return {
+      profileHistory: profileHistory,
+      proofHistory: proofHistory,
+    }
+  }
 }
